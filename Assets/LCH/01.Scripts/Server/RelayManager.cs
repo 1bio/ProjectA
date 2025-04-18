@@ -7,22 +7,13 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.UI;
-using WebSocketSharp;
+using QuickCmd;
 
 public class RelayManager : MonoBehaviour
 {
-    public Button singIn_button;
-    public Button createRelay_button;
-    public Button joinRelay_button;
-    public InputField joinRelay_inputfield;
+    public Canvas ui;
 
-    private void Start()
-    {
-        singIn_button.onClick.AddListener(() => SignIn());
-        createRelay_button.onClick.AddListener(() => CreateRelay(false, 2));
-        joinRelay_button.onClick.AddListener(() => JoinRelay(joinRelay_inputfield.text));
-    }
-
+    [Command]
     public async Awaitable<(bool sucess, string playerId)> SignIn()
     {
         try
@@ -42,6 +33,7 @@ public class RelayManager : MonoBehaviour
         }
     }
 
+    [Command]
     public async Awaitable<(bool success, string joinCode)> CreateRelay(bool isServer, int maxPlayers)
     {
         try
@@ -62,12 +54,14 @@ public class RelayManager : MonoBehaviour
                 // 서버 실행
                 NetworkManager.Singleton.StartServer();
                 Debug.Log($"Started Relay Server With {joinCode}");
+                ui.enabled = true;
             }
             else
             {
                 // 호스트 실행
                 NetworkManager.Singleton.StartHost();
                 Debug.Log($"Started Relay Server With {joinCode}");
+                ui.enabled = true;
             }
 
             return (true, joinCode);
@@ -79,6 +73,7 @@ public class RelayManager : MonoBehaviour
         }
     }
 
+    [Command]
     public async Awaitable<bool> JoinRelay(string joinCode)
     {
         try
@@ -96,6 +91,7 @@ public class RelayManager : MonoBehaviour
             // 클라이언트 실행
             NetworkManager.Singleton.StartClient();
             Debug.Log($"Started Relay With {joinCode}");
+            ui.enabled = true;
             return true;
         }
         catch (Exception e)
